@@ -1,0 +1,27 @@
+/* CSS Document */
+
+body {
+	background-color:#fff;
+}
+p { font-family:Arial, Helvetica, sans-serif; }
+
+table { border-collapse: collapse; border-spacing: 0; font-family: Futura, Arial, sans-serif; }
+caption { font-size: larger; margin: 1em auto; }
+th {background:#999;}
+th, td { padding: .25em; }
+th:first-child { border-radius: 9px 0 0 0; }
+th:last-child { border-radius: 0 9px 0 0; }
+tr:last-child td:first-child { border-radius: 0 0 0 9px; }
+tr:last-child td:last-child { border-radius: 0 0 9px 0; }
+tr:nth-child(odd) { background: #ccc; }
+tr:nth-child(even) { background: #999; }
+
+.sbd { border-collapse: collapse; border-spacing: 0; font-family: Futura, Arial, sans-serif; }
+.sbd caption{ font-size:small; margin: 0; }
+.sbd th, .sbd td{ padding: 0; }
+.sbd th { background: #ddd; color: #000; font-size:smaller }
+.sbd th:first-child { border-radius: 9px 0 0 0; }
+.sbd th:last-child { border-radius: 0 9px 0 0; }
+.sbd th:last-child td:first-child { border-radius: 0 0 0 9px; }
+.sbd tr:last-child td:last-child { border-radius: 0 0 9px 0; }
+.sbd td:nth-child(odd) { background:none; }
