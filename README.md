@@ -3,8 +3,8 @@ tagprodotme
 
 Tagpro.me Public Source
 
-First Release
+0.6.2 Update
 
-I will be dropping elo after this commit. It has bugs and is causing me more headache than any other piece of the site. As it stands, it's broken and a broken metric is worthless. If someone gets it working I will reincorporate it into the site.
+I am stopping development of this project and will leave this source up for anyone that wishes to continue the project.
 
 You will need to run install.sql on a MyISAM-capable MySQL installation, and edit db.php with your details.
