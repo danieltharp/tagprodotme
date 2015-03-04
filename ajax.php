@@ -14,6 +14,6 @@ header("Access-Control-Allow-Headers: Content-Type, Depth, User-Agent, X-File-Si
 	if ($process != NULL) { $process = checkDupe($process); }
 	if ($process != NULL) { $process = uploadGame($process); }
 	if ($process != NULL) { $process = updateStats($process); }
-	if ($process != NULL) { $process = updateElo($process); }
+	//if ($process != NULL) { $process = updateElo($process); }
 	if ($process != NULL) { $process = cleanHouse($process); }
 ?>

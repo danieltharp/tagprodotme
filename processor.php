@@ -125,7 +125,6 @@
 			 }
 			 $qstring = $qstring1.$qstring2;
 	  $upload = query($qstring);
-	  $removedupes = query("DELETE g1 FROM games g1, games g2 WHERE g1.name=g2.name AND g1.gameno=g2.gameno AND g1.score=g2.score AND g1.id > g2.id AND g1.gameno=".$mostrecentgame);
 	  return $mostrecentgame;
   }
   
@@ -140,7 +139,7 @@
   return $lastgame;
   }
   
-  function updateElo($lastgame) {
+/*  function updateElo($lastgame) {
 	  $getdetails = query("SELECT name,team,iwon,auth FROM games WHERE gameno=".$lastgame." ORDER BY iwon DESC");
 	  $winners = array();
 	  $losers = array();
@@ -243,11 +242,11 @@
 		 return $lastgame; 
 	  }
 	  
-  }
+  } */
   
 function cleanHouse($lastgame) {
-	$removedupes = query("DELETE g1 FROM games g1, games g2 WHERE g1.name=g2.name AND g1.gameno=g2.gameno AND g1.score=g2.score AND g1.id > g2.id AND g1.gameno=".$lastgame);
-	$fix100elo = query("UPDATE games SET elo=1000 WHERE elo=100 AND gameno=".$lastgame);
+	//$removedupes = query("DELETE g1 FROM games g1, games g2 WHERE g1.name=g2.name AND g1.gameno=g2.gameno AND g1.score=g2.score AND g1.id > g2.id AND g1.gameno=".$lastgame);
+	//$fix100elo = query("UPDATE games SET elo=1000 WHERE elo=100 AND gameno=".$lastgame);
 	if (multipleOf(25,$lastgame)) {
 	$getresults = query("SELECT (SELECT COUNT(DISTINCT gameno) AS ties FROM games WHERE win = 2) AS ties, (SELECT COUNT(DISTINCT gameno) AS ties FROM games WHERE win = 1) AS redwins, (SELECT COUNT(DISTINCT gameno) AS ties FROM games WHERE win = 0) AS bluewins, COUNT(DISTINCT gameno) AS gamesplayed FROM games");
 	$results = mysql_fetch_assoc($getresults);
@@ -257,7 +256,7 @@ function cleanHouse($lastgame) {
 	$tie = $results['ties'];
 	$updategp = query("UPDATE preaggs SET idxtotalgames=".$gp.",idxredwins=".$red.",idxbluewins=".$blue.",idxties=".$tie." WHERE 1");
 	}
-	if(multipleOf(25,$lastgame)) {
+	if(multipleOf(26,$lastgame)) {
 	$qrows = query("SELECT COUNT(id) as rows FROM games WHERE 1");
 	$rows = mysql_result($qrows,0);
 	$qcols = query("SELECT count(*) as columns FROM information_schema.columns WHERE table_name = 'games'");
@@ -265,6 +264,13 @@ function cleanHouse($lastgame) {
 	$points = $rows*$cols;
 	$updatepoints = query("UPDATE preaggs SET rows=".$rows.",datapoints=".$points." WHERE 1");
 	}
+	if(multipleOf(1000,$lastgame)) {
+		include('updateleaderboard.php');
+	}
+	if(multipleOf(1500,$lastgame)) {
+		include('updatemetrics.php');
+	}
+	
 }
 	  
 ?>

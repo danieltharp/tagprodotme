@@ -35,10 +35,10 @@ echo ", ".$cstats[0]['degree']."&deg;)"; ?></div>
 	if ($cstats[0]['kills']-$cstats[0]['returns'] == 0) { echo "Not enough information for K/TP.<br />"; }
 	else { echo ($cstats[0]['kills']-$cstats[0]['returns'])." non-FC kills on &gt;= ".$cstats[0]['tagpros']." Tagpros for a K/TP of &lt;= ".@round((($cstats[0]['kills']-$cstats[0]['returns'])/$cstats[0]['tagpros']),2)." <sup><a href='#footnotes'>1</a></sup><br />"; }
 	if((round(($cstats[0]['d']/$cstats[0]['played'])*100) < 0) || (round(($cstats[0]['d']/$cstats[0]['played'])*100)) > 100 || (round((($cstats[0]['played']-$cstats[0]['a']-$cstats[0]['d'])/$cstats[0]['played'])*100) < 0) || (round((($cstats[0]['played']-$cstats[0]['a']-$cstats[0]['d'])/$cstats[0]['played'])*100) > 100) || (round(($cstats[0]['a']/$cstats[0]['played'])*100) < 0) || (round(($cstats[0]['a']/$cstats[0]['played'])*100) > 100)) { echo "Not enough info for D/R/A."; }
-	else {echo gmdate("H:i:s", ($cstats[0]['played']))." elapsed time in-game, with a D/R/A of ".round(($cstats[0]['d']/$cstats[0]['played'])*100)."/".round((($cstats[0]['played']-$cstats[0]['a']-$cstats[0]['d'])/$cstats[0]['played'])*100)."/".round(($cstats[0]['a']/$cstats[0]['played'])*100); }
+	else {echo gmdate("j:H:i:s", ($cstats[0]['played']))." elapsed time in-game, with a D/R/A of ".round(($cstats[0]['d']/$cstats[0]['played'])*100)."/".round((($cstats[0]['played']-$cstats[0]['a']-$cstats[0]['d'])/$cstats[0]['played'])*100)."/".round(($cstats[0]['a']/$cstats[0]['played'])*100); }
 	echo "<br />";
 	$puptime = (($cstats[0]['bombtime'] + $cstats[0]['tagprotime'] + $cstats[0]['griptime'])/1000);
-	echo gmdate("H:i:s",$puptime)." spent in powerup for a PUP of ".round(($puptime/$cstats[0]['played'])*100,2)."%";
+	echo sec2hms($puptime)." spent in powerup for a PUP of ".round(($puptime/$cstats[0]['played'])*100,2)."%";
 	echo "<br />";
 	$deadtime = $cstats[0]['deaths']*3; $inactive = round(($deadtime/$cstats[0]['played'])*100,2);
 	echo "Inactive for ".$inactive."% of total played time.";
@@ -50,7 +50,8 @@ echo ", ".$cstats[0]['degree']."&deg;)"; ?></div>
 		echo round(($cstats[0]['score']/$gp),2)." Avg. Score<br />";
 		echo round(($cstats[0]['kills']/$gp),2)." Kills/Game and ".round(($cstats[0]['deaths']/$gp),2)." Deaths/Game.<br />";
 		echo round(($cstats[0]['captures']/$gp),3)." Captures/Game on ".round(($cstats[0]['grabs']/$gp),3)." Attempts/Game and ".round(($cstats[0]['returns']/$gp),3)." Returns/Game.<br />";
-		echo "&gt;= ".round(($cstats[0]['powerups']/$gp),2)." Powerups/Game <sup><a href='#footnotes'>1</a></sup>";
+		echo "&gt;= ".round(($cstats[0]['powerups']/$gp),2)." Powerups/Game <sup><a href='#footnotes'>1</a></sup><br />";
+
 ?>
 <br /><br />
 <strong>Career Stats - Per Minute (<?php $mins = round($cstats[0]['played']/60,1); echo $mins." Minutes Played)"; ?></strong><br />
@@ -61,7 +62,32 @@ echo ", ".$cstats[0]['degree']."&deg;)"; ?></div>
 	echo "&gt;= ".round(($cstats[0]['powerups']/$mins),2)." Powerups/Min <sup><a href='#footnotes'>1</a></sup>";
 ?>
 <br /><br />
-<?php $getelo = query("SELECT (SELECT elo from games WHERE name='".mysql_real_escape_string($_GET['id'])."' AND auth=".$auth." ORDER BY id DESC LIMIT 1) elo, COUNT(gameno) as egp, MAX(elo) as max, MIN(elo) as min FROM games WHERE name='".mysql_real_escape_string($_GET['id'])."' AND auth=".$auth." ORDER by gameno DESC LIMIT 1"); 
+<?php if ($gp >= 100) { echo("<strong>Z-Scores (Min. 100 games played)</strong><br />"); 
+
+		$getscoreinfo = query("SELECT `avg`,`std` FROM metrics WHERE metric='score'"); 
+		$scoreavg = mysql_result($getscoreinfo,0,0); $scorestd = mysql_result($getscoreinfo,0,1);
+		$scorez = (($cstats[0]['score']/$gp)-$scoreavg)/$scorestd;
+		$scorez = round($scorez,3);
+		$scoredpercentile = PCTofZ($scorez);
+		echo "Score/Game Z: ".$scorez." (".$scoredpercentile." Percentile)<br />";
+		
+		$getcapturesinfo = query("SELECT `avg`,`std` FROM metrics WHERE metric='captures'"); 
+		$capturesavg = mysql_result($getcapturesinfo,0,0); $capturesstd = mysql_result($getcapturesinfo,0,1);
+		$capturesz = (($cstats[0]['captures']/$gp)-$capturesavg)/$capturesstd;
+		$capturesz = round($capturesz,3);
+		$capturesdpercentile = PCTofZ($capturesz);
+		echo "Captures/Game Z: ".$capturesz." (".$capturesdpercentile." Percentile)<br />";
+
+		$getretinfo = query("SELECT `avg`,`std` FROM metrics WHERE metric='returns'"); 
+		$retavg = mysql_result($getretinfo,0,0); $retstd = mysql_result($getretinfo,0,1);
+		$retz = (($cstats[0]['returns']/$gp)-$retavg)/$retstd;
+		$retz = round($retz,3);
+		$retdpercentile = PCTofZ($retz);
+		echo "Returns/Game Z: ".$retz." (".$retdpercentile." Percentile)<br />";
+		}
+		
+		?>
+<?php /* $getelo = query("SELECT (SELECT elo from games WHERE name='".mysql_real_escape_string($_GET['id'])."' AND auth=".$auth." ORDER BY id DESC LIMIT 1) elo, COUNT(gameno) as egp, MAX(elo) as max, MIN(elo) as min FROM games WHERE name='".mysql_real_escape_string($_GET['id'])."' AND auth=".$auth." ORDER by gameno DESC LIMIT 1"); 
 	$elostats = mysql_fetch_assoc($getelo);
 if($elostats['egp'] == 0) { echo "No Elo Rating - No games played since game <a href='game.php?id=4931'>4931</a> when Elo tracking began."; }
 else {
@@ -76,7 +102,7 @@ else {
 	echo "Highest recorded Elo - ".$emax." <br />";
 	echo "Lowest recorded Elo - ".$min;
 }
-
+*/
 ?>
 </div>
 <div align="center" style="font-size:large; padding-bottom:30px; width:60%; float:left">
@@ -87,7 +113,7 @@ else {
     	<th><abbr title="Degree">&deg;</abbr></th>
         <th><abbr title="Games Played">GP</abbr></th>
         <th><abbr title="Win-Loss-Tie Record">W-L-T</abbr></th>
-        <th><abbr title="Average Score Per Game">ASPG</abbr></th>
+        <th><abbr title="Points Per Game (Score)">PPG</abbr></th>
         <th><abbr title="Kill:Death Ratio">K:D</abbr></th>
         <th><abbr title="Plus/Minus">+/-</abbr></th>
         <th><abbr title="Plus/Minus Per Game">PMPG</abbr></th>
@@ -182,7 +208,7 @@ $hdra_start = microtime(true);
         showInLegend:"true",
         dataPoints: [
 		<?php for ($i = 0; $i < $max; $i++) { ?>
-        {y: <?php echo ($dstats[$i]['d'] > 0 && $dstats[$i]['r'] > 0 && $dstats[$i]['a'] > 0) ? $dstats[$i]['d'] : 0; ?>, label: "<?php echo $dstats[$i]['degree']."°"; ?>" },
+        {y: <?php echo ($dstats[$i]['d'] > 0 && $dstats[$i]['r'] > 0 && $dstats[$i]['a'] > 0) ? round(($dstats[$i]['d']/$dstats[$i]['played'])*100,2) : 0; ?>, label: "<?php echo $dstats[$i]['degree']."°"; ?>" },
 		<?php } ?>
         ]
       },{type: "stackedColumn100",
@@ -191,7 +217,7 @@ $hdra_start = microtime(true);
         showInLegend:"true",
         dataPoints: [
         <?php for ($i = 0; $i < $max; $i++) { ?>
-        { y: <?php echo ($dstats[$i]['d'] > 0 && $dstats[$i]['r'] > 0 && $dstats[$i]['a'] > 0) ? $dstats[$i]['r'] : 0; ?>, label: "<?php echo $dstats[$i]['degree']."°"; ?>" },
+        { y: <?php echo ($dstats[$i]['d'] > 0 && $dstats[$i]['r'] > 0 && $dstats[$i]['a'] > 0) ? round(($dstats[$i]['r']/$dstats[$i]['played'])*100,2) : 0; ?>, label: "<?php echo $dstats[$i]['degree']."°"; ?>" },
 		<?php } ?>
         ]
       },
@@ -203,7 +229,7 @@ $hdra_start = microtime(true);
         showInLegend:"true",
         dataPoints: [
         <?php for ($i = 0; $i < $max; $i++) { ?>
-        {y: <?php echo ($dstats[$i]['d'] > 0 && $dstats[$i]['r'] > 0 && $dstats[$i]['a'] > 0) ? $dstats[$i]['a'] : 0; ?>, label: "<?php echo $dstats[$i]['degree']."°"; ?>" },
+        {y: <?php echo ($dstats[$i]['d'] > 0 && $dstats[$i]['r'] > 0 && $dstats[$i]['a'] > 0) ? round(($dstats[$i]['a']/$dstats[$i]['played'])*100,2) : 0; ?>, label: "<?php echo $dstats[$i]['degree']."°"; ?>" },
 		<?php } ?>
         ]
       }
@@ -230,12 +256,12 @@ $hapm_start = microtime(true);
         showInLegend:"true",
         dataPoints: [
 		<?php for ($i = 0; $i < $max; $i++) { ?>
-        { y: <?php echo round(($dstats[$i]['kills']/($dstats[$i]['played']/60)),2) ?>, label: "<?php echo $dstats[$i]['degree']."°"; ?>" },
+        { y: <?php echo round(($dstats[$i]['returns']/($dstats[$i]['played']/60)),2) ?>, label: "<?php echo $dstats[$i]['degree']."°"; ?>" },
 		<?php } ?>
         ]
       },{type: "stackedColumn",
-         legendText: "Tagpro Kills",
-		 name: "Tagpro Kills",
+         legendText: "Tags w/o Returns",
+		 name: "Tags w/o Returns",
         showInLegend:"true",
         dataPoints: [
         <?php for ($i = 0; $i < $max; $i++) { ?>
@@ -286,7 +312,7 @@ $hapm_start = microtime(true);
 $hapm = ($hapm_end - $hapm_start)*1000;
 $helo_start = microtime(true);
 ?>
-	<?php if($hasanelo == 1) { ?>
+	<?php /* if($hasanelo == 1) { ?>
 	
 	    var chart4 = new CanvasJS.Chart("histElo",
     {
@@ -315,17 +341,17 @@ $helo_start = microtime(true);
 
     chart4.render();
 	
-	<?php } ?>
+	<?php } */ ?>
 	
   }
   </script>
   <?php $helo_end = microtime(true);
 $helo = ($helo_end - $helo_start)*1000;
 ?>
-  <?php if($hasanelo == 1) { ?>
+  <?php /* if($hasanelo == 1) { ?>
     <div id="histElo" style="height: 600px; width: 100%; float:left">  </div>
     <div style="clear:both">&nbsp;</div>
-  <?php } ?>
+  <?php }  */?>
   <div id="histAPM" style="height: 600px; width: 100%; float:left">  </div>
     <div style="clear:both">&nbsp;</div>
   <div id="histPMPG" style="height: 400px; width: 50%; float:left">
@@ -363,7 +389,7 @@ $helo = ($helo_end - $helo_start)*1000;
                     <th>RPM</th>
                     <th>PUP</th>
                     <th>D/R/A%</th>
-                    <th>Elo</th>
+                   <!-- <th>Elo</th> -->
                  </thead>
 
 <?php	unset($getdetails); unset($row);
@@ -404,8 +430,8 @@ $gb_start = microtime(true);
 					
 					if((round(($row['prevent']/$row['played'])*100) < 0) || (round(($row['prevent']/$row['played'])*100)) > 100 || (round((($row['played']-$row['hold']-$row['prevent'])/$row['played'])*100) < 0) || (round((($row['played']-$row['hold']-$row['prevent'])/$row['played'])*100) > 100) || (round(($row['hold']/$row['played'])*100) < 0) || (round(($row['hold']/$row['played'])*100) > 100)) { echo "<td>Error<sup>2</sup>"; $nan = 1; } else {
 					echo "<td>".round(($row['prevent']/$row['played'])*100)."/".round((($row['played']-$row['hold']-$row['prevent'])/$row['played'])*100)."/".round(($row['hold']/$row['played'])*100); } echo "</td>"; 
-					if ($row['elo'] > 0) { echo "<td>".$row['elo']."</td>"; }
-					else { echo "<td>???<sup>3</sup></td>"; $ebug = 1; }
+					 /*if ($row['elo'] > 0) { echo "<td>".$row['elo']."</td>"; }
+					else { echo "<td>???<sup>3</sup></td>"; $ebug = 1; } */
 					?>
                  </tr>
      		<?php  } }

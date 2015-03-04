@@ -1,10 +1,10 @@
 -- phpMyAdmin SQL Dump
--- version 4.1.8
+-- version 4.0.10.7
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Aug 01, 2014 at 12:03 PM
--- Server version: 5.6.17
+-- Generation Time: Mar 03, 2015 at 08:11 PM
+-- Server version: 5.6.23
 -- PHP Version: 5.4.23
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
@@ -63,11 +63,83 @@ CREATE TABLE IF NOT EXISTS `games` (
   `map` varchar(127) DEFAULT NULL,
   `host` varchar(100) DEFAULT NULL,
   `auth` varchar(1) DEFAULT NULL,
-  `elo` smallint(5) unsigned DEFAULT '0',
   PRIMARY KEY (`id`),
+  UNIQUE KEY `antidupe` (`name`,`gameno`,`team`,`score`),
   KEY `name` (`name`),
-  KEY `name_2` (`name`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=0 ;
+  KEY `name_2` (`name`),
+  KEY `cleanup` (`name`,`gameno`,`score`,`id`),
+  KEY `gameno` (`gameno`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=6576540 ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `iaptest`
+--
+
+CREATE TABLE IF NOT EXISTS `iaptest` (
+  `played` smallint(5) unsigned NOT NULL,
+  `tags` tinyint(3) unsigned NOT NULL,
+  `pops` tinyint(3) unsigned NOT NULL,
+  `iwon` tinyint(1) unsigned DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `leaderboards`
+--
+
+CREATE TABLE IF NOT EXISTS `leaderboards` (
+  `board` varchar(15) NOT NULL,
+  `rank` tinyint(3) unsigned NOT NULL,
+  `name` varchar(24) DEFAULT NULL,
+  `data` varchar(10) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `metrics`
+--
+
+CREATE TABLE IF NOT EXISTS `metrics` (
+  `metric` varchar(15) NOT NULL,
+  `avg` varchar(10) DEFAULT NULL,
+  `std` varchar(10) DEFAULT NULL,
+  `order` tinyint(3) unsigned DEFAULT NULL,
+  UNIQUE KEY `metric` (`metric`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `preaggs`
+--
+
+CREATE TABLE IF NOT EXISTS `preaggs` (
+  `idxtotalgames` int(10) unsigned NOT NULL,
+  `idxredwins` int(10) unsigned NOT NULL,
+  `idxbluewins` int(10) unsigned NOT NULL,
+  `idxties` mediumint(8) unsigned NOT NULL,
+  `rows` bigint(20) unsigned DEFAULT NULL,
+  `datapoints` bigint(20) unsigned DEFAULT NULL,
+  KEY `idxtotalgames` (`idxtotalgames`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `reports`
+--
+
+CREATE TABLE IF NOT EXISTS `reports` (
+  `reportid` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
+  `gameno` int(10) unsigned NOT NULL,
+  `type` tinyint(3) unsigned NOT NULL,
+  `reason` varchar(140) DEFAULT NULL,
+  PRIMARY KEY (`reportid`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=642 ;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;

@@ -71,15 +71,12 @@ require_once('header.php');
     chart.render();
   }
   </script>
-   <div id="chartContainer" style="height: 300px; width: 300px; margin-left: auto; margin-right: auto;">
+   <div id="chartContainer" style="height: 300px; width: 350px; margin-left: auto; margin-right: auto;">
    </div>
    <div style="clear:both">&nbsp;</div>
    <div style="font-size:small; text-align:center">Serving <?php echo number_format($results['datapoints']); ?> data points over <?php echo number_format($results['rows']); ?> game entries.</div>
    </p>
    	<p>
-		The website is slowly taking shape and I have decided to release the Chrome extension to the public as an Open Beta release. Grab it <a href="https://chrome.google.com/webstore/detail/tagprome-sync-agent/bdlmbkibaopdckdiabdckbpnjkhmkaic">here</a>. Player search, game details, player details and Game ID direct input are working. Map page is NYI. Login/Registration is NYI.<br /><br />
-        
-        Wondering where your stats are? <a href="http://www.reddit.com/r/TagPro/comments/2ajq6w/tagprome_stats_are_gone/">http://www.reddit.com/r/TagPro/comments/2ajq6w/tagprome_stats_are_gone/</a><br /><br />
-        Been a fun weekend, added a lot of new features and officially released the site as version 0.6 about 36 hours ahead of schedule. <a href="http://www.reddit.com/r/TagPro/comments/2akfln/tagprome_update_to_extension_data_wipe_pls_no/">http://www.reddit.com/r/TagPro/comments/2akfln/tagprome_update_to_extension_data_wipe_pls_no/</a>
+		I've added Z-Scores for Score, Captures and Returns to players that have at least 100 games logged. A Z-Score is how many standard deviations above the mean you are, so 0 is 50th percentile, right in the middle.
 	</p>
 <?php require_once('footer.php'); ?>

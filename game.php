@@ -14,6 +14,15 @@ require_once('header.php');
 	  $update = query("UPDATE games SET gameno=".$mostrecentgame." WHERE gameno=".mysql_real_escape_string($_GET['id'])." AND host='".$maptoupdate."'");
 	  echo "<script>location.reload();</script>";
 			}
+			$checkcollision = query("SELECT map FROM games WHERE gameno=".mysql_real_escape_string($_GET['id'])." GROUP BY map");
+			if (mysql_num_rows($checkcollision) > 1) {
+				$maptoupdate = mysql_result($checkcollision,0);
+				$q_mostrecentgame = query("SELECT MAX(gameno) FROM games LIMIT 1");
+	  $mostrecentgame = mysql_result($q_mostrecentgame,0);
+	  $mostrecentgame++;
+	  $update = query("UPDATE games SET gameno=".$mostrecentgame." WHERE gameno=".mysql_real_escape_string($_GET['id'])." AND map='".$maptoupdate."'");
+	  echo "<script>location.reload();</script>";
+			}
 			$nan = 0; $ebug = 0;
 $gettime = query("SELECT teamcaps, oppcaps, timestamp, win, map, host FROM games WHERE gameno = ".mysql_real_escape_string($_GET['id'])." LIMIT 1");
 		if(mysql_num_rows($gettime) == 0) { killpage("That game does not exist in the database. It may have been deleted as a duplicate, a hacked game, or you're getting clever with the GET string."); }
@@ -54,7 +63,7 @@ $gettime = query("SELECT teamcaps, oppcaps, timestamp, win, map, host FROM games
                     <th>RPM</th>
                     <th>PUP</th>
                     <th>D/R/A%</th>
-                    <th>Elo</th>
+                    <!-- <th>Elo</th> -->
                  </thead>
 
 <?php
@@ -92,8 +101,8 @@ $gettime = query("SELECT teamcaps, oppcaps, timestamp, win, map, host FROM games
 					
 					if((@round(($row['prevent']/$row['played'])*100) < 0) || (@round(($row['prevent']/$row['played'])*100)) > 100 || (@round((($row['played']-$row['hold']-$row['prevent'])/$row['played'])*100) < 0) || (@round((($row['played']-$row['hold']-$row['prevent'])/$row['played'])*100) > 100) || (@round(($row['hold']/$row['played'])*100) < 0) || (@round(($row['hold']/$row['played'])*100) > 100) || $row['played'] == 0) { echo "<td>Error<sup>1</sup>"; $nan = 1; } else {
 					echo "<td>".round(($row['prevent']/$row['played'])*100)."/".round((($row['played']-$row['hold']-$row['prevent'])/$row['played'])*100)."/".round(($row['hold']/$row['played'])*100); } echo "</td>";
-					if ($row['elo'] > 0) { echo "<td>".$row['elo']."</td>"; }
-					else { echo "<td>Error<sup>2</sup></td>"; $ebug = 1; }
+					// if ($row['elo'] > 0) { echo "<td>".$row['elo']."</td>"; }
+					// else { echo "<td>Error<sup>2</sup></td>"; $ebug = 1; }
 					?>
                  </tr>
                  
@@ -129,7 +138,7 @@ $gettime = query("SELECT teamcaps, oppcaps, timestamp, win, map, host FROM games
   }
   </script>			
 			<div id="scorePct" style="height: 300px; width: 50%; float:left">&nbsp;</div>
-            <?php if ($ebug == 0) { ?><div style="width:50%; float:left" align="center"><strong>Elo Breakdown</strong><br /><br />
+            <?php /* if ($ebug == 0) { ?><div style="width:50%; float:left" align="center"><strong>Elo Breakdown</strong><br /><br />
             <?php $redelo = 0; $blueelo = 0; $blueplayers = 0; $redplayers = 0;
 			for ($i=0;$i < count($player);$i++) { 
 			if($player[$i]['team'] == 1) {$redelo += $player[$i]['elo']; $redplayers++; } else { $blueelo += $player[$i]['elo']; $blueplayers++; }
@@ -143,6 +152,6 @@ $gettime = query("SELECT teamcaps, oppcaps, timestamp, win, map, host FROM games
 			}?>
             
             </div>
-            
+            <?php */ ?>
             <div style="clear:both">&nbsp;</div>
 			<?php require_once('footer.php'); ?>            
